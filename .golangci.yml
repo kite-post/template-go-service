@@ -1,15 +1,13 @@
-# Один набір лінтерів на всі Go-сервіси Kite.
+# Один набір лінтерів на всі Go-сервіси Kite. Формат конфігу — golangci-lint v2.
+version: "2"
+
 run:
   timeout: 5m
 
 linters:
+  # errcheck, govet, ineffassign, staticcheck і unused у v2 увімкнені типово,
+  # тож тут лише те, що додається поверх.
   enable:
-    - errcheck
-    - govet
-    - ineffassign
-    - staticcheck
-    - unused
-    - gosimple
     - bodyclose
     - errorlint
     - gocritic
@@ -19,20 +17,35 @@ linters:
     - unconvert
     - whitespace
 
-linters-settings:
-  revive:
+  settings:
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - style
+        - performance
+      disabled-checks:
+        - importShadow
+        - unnamedResult
+    misspell:
+      locale: US
+    revive:
+      rules:
+        - name: exported
+
+  exclusions:
     rules:
-      - name: exported
-        disabled: false
-  misspell:
-    locale: US
-  gocritic:
-    enabled-tags: [diagnostic, style, performance]
-    disabled-checks: [importShadow, unnamedResult]
+      # У тестах ігнорувати помилку закриття або «негарний» виклик — нормально.
+      - path: _test\.go
+        linters:
+          - errcheck
+          - gocritic
+
+# У v2 форматування — окрема секція: `golangci-lint fmt` виправляє, `run` лає.
+formatters:
+  enable:
+    - gofmt
+    - goimports
 
 issues:
-  exclude-rules:
-    - path: _test\.go
-      linters: [errcheck, gocritic]
   max-issues-per-linter: 0
   max-same-issues: 0

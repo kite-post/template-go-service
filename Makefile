@@ -22,7 +22,9 @@ lint: ## gofmt, go vet, golangci-lint
 		|| echo "golangci-lint не встановлений локально — у CI він є."
 
 fmt: ## Відформатувати код
-	gofmt -w .
+	@command -v golangci-lint >/dev/null 2>&1 \
+		&& golangci-lint fmt \
+		|| gofmt -w .
 
 tidy: ## Узгодити go.mod і go.sum
 	go mod tidy
