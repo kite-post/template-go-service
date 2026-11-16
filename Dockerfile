@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ── Збірка ────────────────────────────────────────────────────────────────────
-FROM golang:1.23-alpine AS build
+FROM golang:1.27-alpine AS build
 WORKDIR /build
 
 # Залежності окремим шаром — go.mod змінюється рідше за код.

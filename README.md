@@ -1,6 +1,6 @@
 # template-go-service
 
-Шаблон репозиторію для Go-сервіса Kite: стандартна бібліотека, distroless-образ,
+Шаблон репозиторію для Go-сервіса Kite: Go 1.27, стандартна бібліотека,
 CI з одного рядка. Із нього створюються scan-service, realtime-service,
 locker-service, mock-pay і sms-gateway-emu (5.6).
 
