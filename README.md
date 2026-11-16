@@ -57,6 +57,34 @@ make run        # запустити без контейнера
 CI окремо перевіряє, що `go mod tidy` нічого не змінює — інакше `go.sum`
 розповзається між репозиторіями.
 
+## Контракти
+
+Структури API, клієнт і типи подій CloudEvents приходять go-модулем
+`github.com/kite-post/kite-contracts`, закріпленим за тегом — своїх копій
+`openapi.yaml` і JSON Schema сервіс не тримає (5.4, п. 6):
+
+```bash
+make contracts        # go get github.com/kite-post/kite-contracts@v0.1.0 + tidy
+make contracts-check  # версія закріплена, replace немає, копій схем немає
+```
+
+`contracts-check` проганяє спільний CI. Тест `internal/httpapi/contracts_test.go`
+розбирає подію типами з контрактів і питає в реєстру, у який топік вона їде —
+якщо хтось скопіює схему до себе або відв'яже залежність, він упаде першим.
+
+У коді це виглядає так:
+
+```go
+import "github.com/kite-post/kite-contracts/kite"
+
+meta := kite.EventRegistry[kite.KiteEventTypeKiteScanRecordedV1]
+// meta.Topic == "scan.events", meta.PartitionKey == "shipmentId"
+```
+
+Порядок наскрізної зміни (5.6): спершу адитивна зміна в `kite-contracts` з
+новим тегом, потім версія тут, і тільки потім продюсер починає слати нове
+поле.
+
 ## Образ
 
 Фінальний образ — `distroless/static:nonroot`: ні shell, ні пакетного

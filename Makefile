@@ -1,10 +1,13 @@
 SERVICE ?= $(notdir $(CURDIR))
 ORG     ?= kite-post
+# Тег kite-contracts, за яким закріплений сервіс. Той самий номер стоїть у
+# go.mod; contracts-check стежить, щоб вони не розійшлися.
+CONTRACTS_VERSION ?= 0.1.0
 IMAGE   ?= ghcr.io/$(ORG)/$(SERVICE)
 TAG     ?= dev
 
 .DEFAULT_GOAL := help
-.PHONY: help build lint fmt tidy test test-it verify image run up down clean contracts rename
+.PHONY: help build lint fmt tidy test test-it verify image run up down clean contracts contracts-check rename
 
 help: ## Показати цілі
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -54,13 +57,14 @@ clean: ## Прибрати артефакти збірки
 	rm -f coverage.out
 	rm -rf ./bin
 
-contracts: ## Згенерувати клієнтів і структури подій з kite-contracts
-	@echo "kite-contracts ще не підключено до цього сервіса."
-	@echo "Підключення: go-модуль github.com/$(ORG)/kite-contracts, закріплений за тегом (5.4, п. 6),"
-	@echo "далі розкоментуй ціль contracts-check нижче — CI почне її проганяти."
+contracts: ## Підключити контракти kite-contracts за тегом
+	go get github.com/$(ORG)/kite-contracts@v$(CONTRACTS_VERSION)
+	go mod tidy
+	@echo "github.com/$(ORG)/kite-contracts v$(CONTRACTS_VERSION) у go.mod."
+	@echo "Структури, клієнт і реєстр подій — у пакеті kite; своїх копій схем сервіс не тримає."
 
-# contracts-check: ## Перевірити сумісність зі схемами kite-contracts
-# 	go run github.com/$(ORG)/kite-contracts/cmd/verify@latest ./...
+contracts-check: ## Перевірити, що контракти підключені за тегом і копій схем немає
+	@bash scripts/contracts-check.sh "$(CONTRACTS_VERSION)"
 
 rename: ## Перейменувати шаблон: make rename NAME=scan-service
 	@test -n "$(NAME)" || (echo "Вкажи ім'я: make rename NAME=scan-service"; exit 1)
