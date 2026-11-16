@@ -7,7 +7,7 @@ locker-service, mock-pay і sms-gateway-emu (5.6).
 ## Новий сервіс
 
 ```bash
-gh repo create kite-post/scan-service --private --template kite-post/template-go-service
+gh repo create kite-post/scan-service --public --template kite-post/template-go-service
 cd scan-service
 make rename NAME=scan-service
 git add -A && git commit -m "Перейменувати шаблон у scan-service" && git push
