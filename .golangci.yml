@@ -1,0 +1,38 @@
+# Один набір лінтерів на всі Go-сервіси Kite.
+run:
+  timeout: 5m
+
+linters:
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - gosimple
+    - bodyclose
+    - errorlint
+    - gocritic
+    - misspell
+    - nilerr
+    - revive
+    - unconvert
+    - whitespace
+
+linters-settings:
+  revive:
+    rules:
+      - name: exported
+        disabled: false
+  misspell:
+    locale: US
+  gocritic:
+    enabled-tags: [diagnostic, style, performance]
+    disabled-checks: [importShadow, unnamedResult]
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters: [errcheck, gocritic]
+  max-issues-per-linter: 0
+  max-same-issues: 0

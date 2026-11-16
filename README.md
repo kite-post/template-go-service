@@ -1,0 +1,65 @@
+# template-go-service
+
+Шаблон репозиторію для Go-сервіса Kite: стандартна бібліотека, distroless-образ,
+CI з одного рядка. Із нього створюються scan-service, realtime-service,
+locker-service, mock-pay і sms-gateway-emu (5.6).
+
+## Новий сервіс
+
+```bash
+gh repo create kite-post/scan-service --private --template kite-post/template-go-service
+cd scan-service
+make rename NAME=scan-service
+git add -A && git commit -m "Перейменувати шаблон у scan-service" && git push
+```
+
+`make rename` змінює ім'я модуля, імпорти та ім'я образу. Без нього репозиторій
+теж збирається і проходить CI — просто під іменем шаблону.
+
+## Що всередині
+
+```
+cmd/server/main.go        конфіг з оточення, slog у JSON, коректна зупинка на SIGTERM
+internal/httpapi          роутер: /api/v1/info, /healthz, /readyz
+internal/httpapi/api_test.go  тести на httptest, без мережі
+.golangci.yml             один набір лінтерів на всі Go-сервіси
+Dockerfile                статичний бінарник у distroless:nonroot
+Makefile                  той самий набір цілей, що й у решти репозиторіїв
+.github/workflows/ci.yml  п'ять рядків: виклик спільного workflow із .github
+```
+
+Залежностей немає навмисно: роутинг методів (`GET /healthz`) умів `net/http`
+з Go 1.22, а логування — `log/slog` зі стандартної бібліотеки. Коли з'являться
+Kafka, MQTT або Postgres, вони приходять як перші справжні залежності сервіса.
+
+## Команди
+
+```bash
+make build      # зібрати бінарник у ./bin
+make lint       # gofmt + go vet + golangci-lint
+make fmt        # відформатувати
+make tidy       # узгодити go.mod і go.sum
+make test       # швидкі тести (-short)
+make test-it    # усі тести з покриттям
+make verify     # усе, що робить CI
+make image      # зібрати образ локально
+make up         # підняти образ на 8080
+make run        # запустити без контейнера
+```
+
+## CI
+
+Увесь пайплайн — виклик спільного workflow з
+[kite-post/.github](https://github.com/kite-post/.github): gofmt, узгодженість
+`go.mod`, golangci-lint, `go vet`, тести з `-race`, збірка образу, публікація в
+`ghcr.io/kite-post/<сервіс>` і PR у `kite-infra` з новою версією (12.6).
+
+CI окремо перевіряє, що `go mod tidy` нічого не змінює — інакше `go.sum`
+розповзається між репозиторіями.
+
+## Образ
+
+Фінальний образ — `distroless/static:nonroot`: ні shell, ні пакетного
+менеджера, ні root. Через це в ньому немає `curl`, тож healthcheck у compose
+краще робити зовнішнім (`wget` з сусіднього контейнера) або додати власну
+`/healthz`-пробу з боку оркестратора — ендпоїнт для цього вже є.
