@@ -2,7 +2,7 @@ SERVICE ?= $(notdir $(CURDIR))
 ORG     ?= kite-post
 # Тег kite-contracts, за яким закріплений сервіс. Той самий номер стоїть у
 # go.mod; contracts-check стежить, щоб вони не розійшлися.
-CONTRACTS_VERSION ?= 0.1.0
+CONTRACTS_VERSION ?= 0.2.1
 IMAGE   ?= ghcr.io/$(ORG)/$(SERVICE)
 TAG     ?= dev
 
@@ -57,11 +57,8 @@ clean: ## Прибрати артефакти збірки
 	rm -f coverage.out
 	rm -rf ./bin
 
-contracts: ## Підключити контракти kite-contracts за тегом
-	go get github.com/$(ORG)/kite-contracts@v$(CONTRACTS_VERSION)
-	go mod tidy
-	@echo "github.com/$(ORG)/kite-contracts v$(CONTRACTS_VERSION) у go.mod."
-	@echo "Структури, клієнт і реєстр подій — у пакеті kite; своїх копій схем сервіс не тримає."
+contracts: ## Підключити kite-contracts за тегом; нова версія — make contracts V=0.2.0
+	@ORG=$(ORG) bash scripts/contracts.sh "$(if $(V),$(V),$(CONTRACTS_VERSION))"
 
 contracts-check: ## Перевірити, що контракти підключені за тегом і копій схем немає
 	@bash scripts/contracts-check.sh "$(CONTRACTS_VERSION)"

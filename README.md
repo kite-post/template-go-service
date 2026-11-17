@@ -64,9 +64,16 @@ CI окремо перевіряє, що `go mod tidy` нічого не змі�
 `openapi.yaml` і JSON Schema сервіс не тримає (5.4, п. 6):
 
 ```bash
-make contracts        # go get github.com/kite-post/kite-contracts@v0.1.0 + tidy
-make contracts-check  # версія закріплена, replace немає, копій схем немає
+make contracts            # go get kite-contracts за поточним тегом + tidy
+make contracts V=0.3.0    # перейти на нову версію: Makefile + go.mod
+make contracts-check      # версія закріплена, replace немає, копій схем немає
 ```
+
+Нова версія приходить сама: після релізу `kite-contracts` розсилає подію
+всім репозиторіям із топіком `kite-contracts`, і workflow `contracts-bump`
+відкриває PR з `make contracts V=<версія>`. Версія одна на всі репозиторії.
+Руками те саме: `make contracts V=0.3.0`. Якщо тегу немає, `Makefile` і
+маніфест лишаються як були.
 
 `contracts-check` проганяє спільний CI. Тест `internal/httpapi/contracts_test.go`
 розбирає подію типами з контрактів і питає в реєстру, у який топік вона їде —
