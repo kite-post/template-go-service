@@ -2,7 +2,7 @@ SERVICE ?= $(notdir $(CURDIR))
 ORG     ?= kite-post
 # Тег kite-contracts, за яким закріплений сервіс. Той самий номер стоїть у
 # go.mod; contracts-check стежить, щоб вони не розійшлися.
-CONTRACTS_VERSION ?= 0.2.1
+CONTRACTS_VERSION ?= 0.3.0
 IMAGE   ?= ghcr.io/$(ORG)/$(SERVICE)
 TAG     ?= dev
 

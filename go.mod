@@ -2,7 +2,7 @@ module github.com/kite-post/service-template
 
 go 1.27
 
-require github.com/kite-post/kite-contracts v0.2.1
+require github.com/kite-post/kite-contracts v0.3.0
 
 require (
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
